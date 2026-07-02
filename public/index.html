@@ -4,10 +4,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Web Performance Lab</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Web Performance Lab</h1>
-  <p>Feature demo: <a href="/lab/">/lab/</a></p>
+
+  <nav class="nav">
+    <span class="brand">
+      <span class="brand-full">Web Performance Lab</span>
+      <span class="brand-short">WPL</span>
+    </span>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="/lab/">Demo</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Build fast, measure faster.</h1>
+      <p>A simple sandbox for testing how slow scripts, big images and blocking styles affect real performance metrics.</p>
+      <a class="btn" href="/lab/">Open the demo</a>
+    </div>
+    <div class="hero-visual">
+      <img
+        class="hero-image"
+        src="/test/image.png?w=0&s=300000"
+        width="800"
+        height="400"
+        alt="LCP test image"
+      />
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="feature">
+      <h3>Core Web Vitals</h3>
+      <p>Watch FCP, LCP, TBT and CLS change live as you inject test assets.</p>
+    </div>
+    <div class="feature">
+      <h3>Configurable delays</h3>
+      <p>Simulate slow networks and heavy payloads with simple query params.</p>
+    </div>
+    <div class="feature">
+      <h3>No build step</h3>
+      <p>Plain HTML, CSS and JS served directly — edit and reload.</p>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="about-inner">
+      <h2>About</h2>
+      <p>This page is a static entry point. The interactive performance lab lives at <a href="/lab/">/lab/</a>.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Web Performance Lab</p>
+  </footer>
 
   <!-- add dynamic scripts below -->
 </body>

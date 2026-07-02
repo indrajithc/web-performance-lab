@@ -256,7 +256,15 @@ async function handleTestAsset(pathname, searchParams) {
 // static file handler (for anything NOT under /test/)
 // ---------------------------------------------------------------------
 
-async function handleStatic(pathname) {
+// Comment delimiters used to pad each text-based file type without
+// breaking its syntax.
+const PAD_DELIMS = {
+  ".html": ["<!--", "-->"],
+  ".css": ["/*", "*/"],
+  ".js": ["/*", "*/"],
+};
+
+async function handleStatic(pathname, searchParams) {
   if (pathname.endsWith("/")) pathname += "index.html";
   const filePath = path.normalize(path.join(PUBLIC_DIR, pathname));
 
@@ -265,16 +273,38 @@ async function handleStatic(pathname) {
   }
 
   const f = file(filePath);
-  if (await f.exists()) {
-    return new Response(f, {
+  if (!(await f.exists())) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  // Any static file can be requested with ?w=<ms>&s=<bytes> to simulate a
+  // slow / heavy response, same as /test/* assets.
+  const w = clamp(parseInt(searchParams.get("w") || "0", 10), 0, MAX_WAIT_MS);
+  const s = clamp(parseInt(searchParams.get("s") || "0", 10), 0, MAX_SIZE_BYTES);
+
+  if (w > 0) await Bun.sleep(w);
+
+  const contentType = mimeFor(filePath);
+  const ext = path.extname(filePath).toLowerCase();
+  const delims = PAD_DELIMS[ext];
+
+  if (s > 0 && delims) {
+    const body = padTextAsset(await f.text(), s, delims[0], delims[1]);
+    return new Response(body, {
       headers: {
-        "Content-Type": mimeFor(filePath),
-        // No caching, so edit -> reload always shows the latest file.
+        "Content-Type": contentType,
         "Cache-Control": "no-store, must-revalidate, max-age=0",
       },
     });
   }
-  return new Response("Not found", { status: 404 });
+
+  return new Response(f, {
+    headers: {
+      "Content-Type": contentType,
+      // No caching, so edit -> reload always shows the latest file.
+      "Cache-Control": "no-store, must-revalidate, max-age=0",
+    },
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -290,7 +320,7 @@ Bun.serve({
     if (pathname.startsWith("/test/")) {
       return handleTestAsset(pathname, url.searchParams);
     }
-    return handleStatic(pathname);
+    return handleStatic(pathname, url.searchParams);
   },
 });
 

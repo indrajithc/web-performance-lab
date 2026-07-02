@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Performance Lab — LCP / FCP / TBT / CLS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <h1>Web Performance Lab</h1>
+    <p>Inject slow/huge scripts, styles, images and fonts and watch how they affect real performance metrics.</p>
+  </header>
+
+  <main class="layout">
+
+    <!-- ============ METRICS DASHBOARD ============ -->
+    <section class="panel" id="metrics-panel">
+      <h2>Live metrics</h2>
+      <div class="metrics-grid">
+        <div class="metric-card" data-metric="ttfb">
+          <span class="metric-label">TTFB</span>
+          <span class="metric-value" id="m-ttfb">—</span>
+        </div>
+        <div class="metric-card" data-metric="fcp">
+          <span class="metric-label">FCP</span>
+          <span class="metric-value" id="m-fcp">—</span>
+        </div>
+        <div class="metric-card" data-metric="lcp">
+          <span class="metric-label">LCP</span>
+          <span class="metric-value" id="m-lcp">—</span>
+        </div>
+        <div class="metric-card" data-metric="tbt">
+          <span class="metric-label">TBT (approx)</span>
+          <span class="metric-value" id="m-tbt">—</span>
+        </div>
+        <div class="metric-card" data-metric="cls">
+          <span class="metric-label">CLS</span>
+          <span class="metric-value" id="m-cls">—</span>
+        </div>
+      </div>
+      <p class="hint" id="lcp-hint">LCP element: —</p>
+      <p class="hint">TBT here is a rough approximation from Long Task entries (Chrome only, and only counts tasks after navigation start until the page goes hidden).</p>
+    </section>
+
+    <!-- ============ INJECT CONTROLS ============ -->
+    <section class="panel" id="controls-panel">
+      <h2>Inject a test asset</h2>
+      <p class="hint">
+        Every request under <code>/test/&lt;name&gt;</code> supports
+        <code>?w=</code> (artificial delay, ms) and <code>?s=</code> (approx response size, bytes).
+      </p>
+      <form id="inject-form">
+        <label>
+          Type
+          <select id="asset-type" name="type">
+            <option value="script">Script (blocking, in &lt;head&gt;)</option>
+            <option value="script-async">Script (async)</option>
+            <option value="style">Stylesheet</option>
+            <option value="image">Image (renders below, can be LCP)</option>
+            <option value="font">Font (@font-face)</option>
+          </select>
+        </label>
+        <label>
+          Wait (ms)
+          <input type="number" id="asset-wait" name="w" value="500" min="0" max="60000" step="50" />
+        </label>
+        <label>
+          Size (bytes)
+          <input type="number" id="asset-size" name="s" value="50000" min="0" max="20000000" step="1000" />
+        </label>
+        <button type="submit">Inject</button>
+      </form>
+      <div class="quick-row">
+        <span class="hint">Quick presets:</span>
+        <button type="button" class="preset" data-type="script" data-w="0" data-s="0">tiny script</button>
+        <button type="button" class="preset" data-type="script" data-w="1500" data-s="300000">heavy blocking script</button>
+        <button type="button" class="preset" data-type="image" data-w="0" data-s="500000">big LCP image</button>
+        <button type="button" class="preset" data-type="image" data-w="2000" data-s="500000">slow LCP image</button>
+        <button type="button" class="preset" data-type="style" data-w="800" data-s="20000">slow render-blocking CSS</button>
+      </div>
+      <button type="button" id="clear-btn" class="secondary">Clear injected assets &amp; reset page</button>
+    </section>
+
+    <!-- ============ LCP PLAYGROUND ============ -->
+    <section class="panel" id="lcp-candidate-area">
+      <h2>Render area</h2>
+      <p class="hint">Injected images land here. This box (and its contents) are typically what competes to become the LCP element.</p>
+      <div id="render-target">
+        <h3 class="test-css-marker">Hello — this text can be the LCP element too.</h3>
+        <div id="image-slot"></div>
+      </div>
+    </section>
+
+    <!-- ============ RESOURCE LOG ============ -->
+    <section class="panel" id="log-panel">
+      <h2>Resource timing log</h2>
+      <table id="resource-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Start</th>
+            <th>Duration</th>
+            <th>Transfer size</th>
+          </tr>
+        </thead>
+        <tbody id="resource-table-body"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      FCP = First Contentful Paint · LCP = Largest Contentful Paint ·
+      TBT = Total Blocking Time · CLS = Cumulative Layout Shift.
+      Open DevTools → Performance/Lighthouse to see the real numbers alongside these.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "perf-lab",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "bun server.js",
+    "dev": "bun --watch server.js"
+  }
+}

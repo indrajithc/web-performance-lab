@@ -1,0 +1,32 @@
+[
+  {
+    "id": "nav",
+    "tag": "nav",
+    "class": "nav",
+    "html": "<span class='brand'><span class='brand-full'>Web Performance Lab</span><span class='brand-short'>WPL</span></span><ul><li><a href='#features'>Features</a></li><li><a href='#about'>About</a></li><li><a href='/lab/'>Demo</a></li></ul>"
+  },
+  {
+    "id": "hero",
+    "tag": "section",
+    "class": "hero",
+    "html": "<div class='hero-text'><h1>Build fast, measure faster.</h1><p>A simple sandbox for testing how slow scripts, big images and blocking styles affect real performance metrics.</p><a class='btn' href='/lab/'>Open the demo</a></div><div class='hero-visual'><img class='hero-image' src='/test/image.png?w=0&s=300000' width='800' height='400' alt='LCP test image' /></div>"
+  },
+  {
+    "id": "features",
+    "tag": "section",
+    "class": "features",
+    "html": "<div class='feature'><h3>Core Web Vitals</h3><p>Watch FCP, LCP, TBT and CLS change live as you inject test assets.</p></div><div class='feature'><h3>Configurable delays</h3><p>Simulate slow networks and heavy payloads with simple query params.</p></div><div class='feature'><h3>No build step</h3><p>Plain HTML, CSS and JS served directly — edit and reload.</p></div>"
+  },
+  {
+    "id": "about",
+    "tag": "section",
+    "class": "about",
+    "html": "<div class='about-inner'><h2>About</h2><p>This page is a static entry point. The interactive performance lab lives at <a href='/lab/'>/lab/</a>.</p></div>"
+  },
+  {
+    "id": "footer",
+    "tag": "footer",
+    "class": "footer",
+    "html": "<p>Web Performance Lab</p>"
+  }
+]

@@ -35,17 +35,19 @@ public/
 
 ## The `/test/` endpoint
 
-Anything under `/test/<name>` is generated on the fly and supports two
+Anything under `/test/<name>` is generated on the fly and supports these
 query params:
 
-| Param | Meaning                                  |
-|-------|-------------------------------------------|
-| `w`   | artificial wait before responding, in ms   |
-| `s`   | approximate response size, in bytes        |
+| Param | Meaning                                                          |
+|-------|-------------------------------------------------------------------|
+| `w`   | artificial wait before responding, in ms                          |
+| `s`   | approximate response size, in bytes                                |
+| `c`   | `.js` only — complexity, 0-100. Busy-loops the main thread for `c * 100`ms once the script executes in the browser, to produce a controllable long task / high TBT |
 
 The file extension in `<name>` decides what kind of content comes back:
 
 - `/test/script.js?w=300&s=50000` → real, executable JS padded with a comment to ~50KB, delayed 300ms
+- `/test/script.js?c=10` → executes and busy-loops the main thread for ~1000ms (a deliberate long task, for TBT demos)
 - `/test/style.css?w=100&s=10000` → real CSS, same idea
 - `/test/image.png?w=500&s=200000` → a **real, valid PNG** (built by hand, no libraries) so it actually renders and can become the LCP element
 - `/test/font.woff2?w=200&s=80000` → raw filler bytes with a font content-type — good for seeing the network request/timing, but note it is **not** a structurally valid font, so the browser will fall back to your next `font-family` (check devtools console). Real font shaping libraries were out of scope here.

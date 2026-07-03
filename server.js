@@ -177,6 +177,36 @@ const BASE_JS = `(function () {
   console.log("[test-script] executed", { wait: params.get("w"), size: params.get("s") });
 })();`;
 
+// `c` (complexity) controls how long this script busy-loops the main
+// thread once it executes in the browser — separate from `w`, which only
+// delays the network response. Each unit of `c` blocks for BLOCK_MS_PER_C
+// milliseconds, so e.g. c=10 -> ~1000ms long task -> big TBT hit.
+const BLOCK_MS_PER_C = 100;
+
+function buildBlockingJS(c) {
+  const blockMs = c * BLOCK_MS_PER_C;
+  return `(function () {
+  var s = document.currentScript;
+  var url = s ? s.src : "";
+  var params = url ? new URL(url).searchParams : new URLSearchParams();
+  var blockMs = ${blockMs};
+  var end = performance.now() + blockMs;
+  while (performance.now() < end) { /* busy loop: simulate c=${c} complexity */ }
+  window.dispatchEvent(new CustomEvent("test-asset-loaded", {
+    detail: {
+      type: "script",
+      url: url,
+      wait: params.get("w"),
+      size: params.get("s"),
+      complexity: params.get("c"),
+      blockedMs: blockMs,
+      time: performance.now()
+    }
+  }));
+  console.log("[test-script] executed", { wait: params.get("w"), size: params.get("s"), complexity: params.get("c"), blockedMs: blockMs });
+})();`;
+}
+
 const BASE_CSS = `/* generated test stylesheet */
 body { --test-css-loaded: 1; }
 .test-css-marker::after { content: "css loaded"; }`;
@@ -197,10 +227,12 @@ function mimeFontFor(ext) {
 
 const MAX_WAIT_MS = 60_000;
 const MAX_SIZE_BYTES = 20 * 1024 * 1024; // 20MB safety cap
+const MAX_COMPLEXITY = 100; // clamps blocking time to 100 * BLOCK_MS_PER_C = 10s
 
 async function handleTestAsset(pathname, searchParams) {
   const w = clamp(parseInt(searchParams.get("w") || "0", 10), 0, MAX_WAIT_MS);
   const s = clamp(parseInt(searchParams.get("s") || "0", 10), 0, MAX_SIZE_BYTES);
+  const c = clamp(parseInt(searchParams.get("c") || "0", 10), 0, MAX_COMPLEXITY);
   const ext = path.extname(pathname).toLowerCase();
 
   if (w > 0) await Bun.sleep(w);
@@ -211,7 +243,7 @@ async function handleTestAsset(pathname, searchParams) {
   switch (ext) {
     case ".js":
       contentType = "text/javascript; charset=utf-8";
-      body = padTextAsset(BASE_JS, s);
+      body = padTextAsset(c > 0 ? buildBlockingJS(c) : BASE_JS, s);
       break;
 
     case ".css":
